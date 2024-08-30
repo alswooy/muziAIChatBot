@@ -1,10 +1,10 @@
 # KDT_DBE1_Toy_Project3
 
-토이 프로젝트 2 : 쇼핑몰 만들기 프로젝트 2단계
+토이 프로젝트 3 : OpenAI 기반 챗봇 시스템 적용
 
 [프로젝트 개요]
 
-프로젝트 명 : Flask를 활용한 OpenAI 챗봇 개발 및 자바 스프링 서버와의 연동
+프로젝트 명 :  Flask를 활용한 OpenAI 챗봇 개발 및 자바 스프링 서버와의 연동
 
 상세 내용 : https://www.notion.so/Toy-Project-3-8fc76ea7c79c47e089f6abcc41b35a0c?pvs=4
 
