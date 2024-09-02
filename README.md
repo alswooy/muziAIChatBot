@@ -1,7 +1,9 @@
 # KDT_DBE1_Toy_Project3
 
  pip install python-dotenv
+ 
  pip install pymysql
+ 
  pip install os
 
 ### [프로젝트 개요] 
