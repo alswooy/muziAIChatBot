@@ -1,8 +1,8 @@
 # KDT_DBE1_Toy_Project3
 
-pip install python-dotenv
-pip install pymysql
-pip install os
+ pip install python-dotenv
+ pip install pymysql
+ pip install os
 
 ### [프로젝트 개요] 
 - **프로젝트 명** : Flask를 활용한 OpenAI 챗봇 개발 및 자바 스프링 서버와의 연동
