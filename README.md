@@ -3,9 +3,13 @@
  ```
  pip install python-dotenv
  
- pip install pymysql
- 
  pip install os
+
+ pip install flask
+
+ pip install sqlalchemy
+
+ 
 ```
 
 ### [프로젝트 개요] 
