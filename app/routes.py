@@ -1,41 +1,34 @@
-from flask import Blueprint, render_template, jsonify
-from app.db import get_cust_db, get_notice_db, get_faq_db, get_order_db, get_product_db, get_cart_db
+# API 파일
+from flask import Blueprint, request, render_template, jsonify
+from flask_cors import CORS
+from app.db import get_order_db
+from dotenv import load_dotenv
+import os
+from openai import OpenAI
+from app.utils import (
+    make_prompt, 
+    extract_purchase_id,
+    extract_customer_name_email
+)
+load_dotenv()
 
 main_bp = Blueprint('main', __name__)
+CORS(main_bp)
+# main_bp.secret_key = os.getenv('SECRET_KEY')
 
-@main_bp.route('/')
+api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=api_key)
+
+messages = []
+
+@main_bp.route('/', methods=['POST','GET'])
 def index():
-    data = get_order_db()
-    print(jsonify(data))
-    return render_template('index.html')
-
-@main_bp.route('/customers')
-def customers():
-    data = get_cust_db()
-
-    return render_template('customers.html', data=data)
-
-@main_bp.route('/notices')
-def notices():
-    data = get_notice_db()
-    return render_template('notices.html', data=data)
-
-@main_bp.route('/faqs')
-def faqs():
-    data = get_faq_db()
-    return render_template('faqs.html', data=data)
-
-@main_bp.route('/orders')
-def orders():
-    data = get_order_db()
-    return render_template('orders.html', data=data)
-
-@main_bp.route('/products')
-def products():
-    data = get_product_db()
-    return render_template('products.html', data=data)
-
-@main_bp.route('/cart')
-def cart():
-    data = get_cart_db()
-    return render_template('cart.html', data=data)
+    bot_response = ""
+    if request.method == 'POST':
+        request_email=request.form.get('user_email')
+        user_input = request.form.get('user_input')
+        order = get_order_db(request_email)
+        print('POST HI')
+    if request.method == 'GET':
+        print('GET HI')
+    
