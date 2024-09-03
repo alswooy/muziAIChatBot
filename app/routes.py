@@ -31,4 +31,4 @@ def index():
         print('POST HI')
     if request.method == 'GET':
         print('GET HI')
-    return user
+    
