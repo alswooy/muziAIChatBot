@@ -39,17 +39,14 @@ def get_order_db(email):
         return json.dumps([])
     # 쿼리 작성
     query = text("SELECT or_no, or_prices, or_delvs, or_date FROM orders WHERE c_email= :email")
-    
     # 쿼리 실행 email이 맞는 정보만 출력
     return execute_query(query, engine, {'email': email})
 
-def get_cust_db(email, password):
+def get_cust_db(email):
     engine = get_db_connections()
     if engine is None:
         return json.dumps([])
     # 쿼리 작성
-    query = text("select ")
-    
+    query = text("select c_email, c_name from where c_email= :email")
     # 쿼리 실행 email이 맞는 정보만 출력
-    return execute_query(query, engine, {'email': email, 'password':password})
-    
+    return execute_query(query, engine, {'email': email})
