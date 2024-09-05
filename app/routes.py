@@ -28,13 +28,13 @@ messages = []
 def index():
     bot_response = ""
     if request.method == 'POST':
-        request_email=request.form.get('user_email')
-        user_input = request.form.get('user_input')
-        order = get_order_db(request_email)
-        print('POST HI')
-        return "hi"
+        prompt=[
+            {"role": "system", "content": "너는 무지 사이트  ai야"},
+            {"role": "user", "content": f"{req}"}
+        ]
+        res=make_prompt(prompt)
+        return res
     if request.method == 'GET':
-        print('GET HI')
         return 'hi'
     
 
