@@ -50,3 +50,15 @@ def get_cust_db(email):
     query = text("select c_email, c_name from where c_email= :email")
     # 쿼리 실행 email이 맞는 정보만 출력
     return execute_query(query, engine, {'email': email})
+
+def get_notice_db(Date):
+    engine = get_db_connections()
+    query = text(f"select * from Notice where n_createDate>='{Date}'")
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query)
+            result_list = [dict(row) for row in result.mappings()]
+            return result_list
+    except Exception as e:
+        print(f"Failed to execute query: {e}")
+        return []
