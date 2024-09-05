@@ -11,7 +11,7 @@ def get_db_connections():
     envuser = os.getenv('DB_USER')
     envpassword = os.getenv('DB_PASSWORD')
     envdb = os.getenv('DB_NAME')
-    
+
     try:
         engine = create_engine('mysql+pymysql://'+envuser+':'+envpassword+'@'+envhost+'/'+envdb)
         print("Connect successful!")
@@ -32,16 +32,6 @@ def execute_query(query, engine, params=None):
         print(f"Failed to execute query: {e}")
         return json.dumps([])
 
-# 쿼리문 작성
-def get_order_db(email):
-    engine = get_db_connections()
-    if engine is None:
-        return json.dumps([])
-    # 쿼리 작성
-    query = text("SELECT or_no, or_prices, or_delvs, or_date FROM orders WHERE c_email= :email")
-    # 쿼리 실행 email이 맞는 정보만 출력
-    return execute_query(query, engine, {'email': email})
-
 def get_cust_db(email):
     engine = get_db_connections()
     if engine is None:
@@ -57,8 +47,25 @@ def get_notice_db(Date):
     try:
         with engine.connect() as connection:
             result = connection.execute(query)
+            print("db - result:",result)
             result_list = [dict(row) for row in result.mappings()]
+            print("db - result_list: ",result_list)
             return result_list
     except Exception as e:
         print(f"Failed to execute query: {e}")
         return []
+
+def get_order_db(email):
+    engine = get_db_connections()
+    query = text("select * from order_delt where or_no = (select or_no from orders where c_email= :email  order by or_date DESC LIMIT 1)")
+    
+    if engine is None:
+        return json.dumps([])
+    try:
+        result = execute_query(query, engine, {'email':email})
+        print("db : " ,result)
+        return result
+    except Exception as e:
+        print(f"Failed to execute query: {e}")
+        return []
+    
