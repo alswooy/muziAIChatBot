@@ -9,7 +9,7 @@ client = OpenAI(api_key=api_key)
 
 def make_prompt(conversation):
     res = client.chat.completions.create(
-        model='gpt-3.5-turbo',
+        model='gpt-4o-mini',
         messages=conversation,
         max_tokens=150,
         temperature=0.7,
