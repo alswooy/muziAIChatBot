@@ -28,14 +28,15 @@ messages = []
 def index():
     bot_response = ""
     if request.method == 'POST':
+        data=request.get_json()
+        req=data.get('contents')
         prompt=[
             {"role": "system", "content": "너는 무지 사이트  ai야"},
             {"role": "user", "content": f"{req}"}
         ]
         res=make_prompt(prompt)
         return res
-    if request.method == 'GET':
-        return 'hi'
+
     
 
 @main_bp.route('/notice', methods=['POST'])
