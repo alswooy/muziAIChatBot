@@ -1,11 +1,9 @@
 # API 파일
 from datetime import date , timedelta 
-from flask import Blueprint, request, render_template, jsonify, redirect, url_for, session
+from flask import Blueprint, request, render_template, jsonify, redirect, url_for
 from flask_cors import CORS
-from app.db import get_order_db, get_notice_db
-from app.utils import dayfillter, makeContents, makeOrder
 from app.db import get_order_db, get_notice_db, get_faq_db
-from app.utils import dayfillter, makeContents, makeResponse
+from app.utils import dayfillter, makeContents, makeResponse, makeOrder
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
@@ -30,6 +28,7 @@ redis_client = redis.StrictRedis(
     password=passwenv,  # Redis 서버 비밀번호
     decode_responses=True   # 응답을 문자열로 디코딩
 )
+
 main_bp = Blueprint('main', __name__)
 CORS(main_bp, supports_credentials=True, origins=["http://localhost:8080"])
 # main_bp.secret_key = os.getenv('SECRET_KEY')
@@ -38,18 +37,6 @@ api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=api_key)
 
 messages = []
-
-@main_bp.route('/test', methods=['GET','POST'])
-def test():
-    test = request.cookies.get('SESSION')
-    session_id = base64.b64decode(test).decode('utf-8')
-
-    redis_key = f"spring:session:sessions:{session_id}"
-        # 해당 키의 모든 필드와 값을 가져옴 (Redis 해시 사용)
-    session_data = redis_client.hgetall(redis_key)
-    email_value = session_data.get("sessionAttr:c_email")
-    cleaned_text = email_value.replace('"', '')
-    return cleaned_text
 
 @main_bp.route('/', methods=['POST'])
 def index():
@@ -81,6 +68,31 @@ def notice():
         res=make_prompt(prompt)
         return res
 
+@main_bp.route('/faq', methods=['POST'])
+def faq():
+    if request.method == 'POST':
+        data = request.get_json()
+        user_input = data.get('contents')
+
+        # Log user input for debugging
+        print(f"FAQ 요청: {user_input}")
+        
+        # Fetch FAQ data based on user input
+        faq_results = get_faq_db(user_input)
+        formatted_faqs = makeResponse(faq_results)
+
+        # Log FAQ results for debugging
+        print(f"FAQ 결과: {formatted_faqs}")
+
+        # Construct AI prompt for FAQ response
+        prompt = [
+            {"role": "system", "content": "너는 FAQ 관련 문의를 받아주는 AI야. DB를 조회해서 사용자의 질문에 답변해줘."},
+            {"role": "user", "content": f"===\n{formatted_faqs}\n=== {user_input}"}
+        ]
+
+        response = make_prompt(prompt)
+        return response
+    
 @main_bp.route('/order', methods=['POST','GET'])
 def order():
     # Spring 서버의 /redis 엔드포인트에 GET 요청
@@ -125,27 +137,3 @@ def order():
             ]
             res = make_prompt(prompt)
             return res
-@main_bp.route('/faq', methods=['POST'])
-def faq():
-    if request.method == 'POST':
-        data = request.get_json()
-        user_input = data.get('contents')
-
-        # Log user input for debugging
-        print(f"FAQ 요청: {user_input}")
-        
-        # Fetch FAQ data based on user input
-        faq_results = get_faq_db(user_input)
-        formatted_faqs = makeResponse(faq_results)
-
-        # Log FAQ results for debugging
-        print(f"FAQ 결과: {formatted_faqs}")
-
-        # Construct AI prompt for FAQ response
-        prompt = [
-            {"role": "system", "content": "너는 FAQ 관련 문의를 받아주는 AI야. DB를 조회해서 사용자의 질문에 답변해줘."},
-            {"role": "user", "content": f"===\n{formatted_faqs}\n=== {user_input}"}
-        ]
-
-        response = make_prompt(prompt)
-        return response
