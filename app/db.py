@@ -1,6 +1,7 @@
 # DB 관련 파일
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
+from app.utils import generate_query_conditions
 import os
 import json
 load_dotenv()
@@ -9,7 +10,7 @@ load_dotenv()
 def get_db_connections():
     envhost = os.getenv('DB_HOST')
     envuser = os.getenv('DB_USER')
-    envpassword = os.getenv('DB_PASSWORD')
+    envpassword = os.getenv('DB_PASSWORD2')
     envdb = os.getenv('DB_NAME')
 
     try:
@@ -44,6 +45,24 @@ def get_cust_db(email):
 def get_notice_db(Date):
     engine = get_db_connections()
     query = text(f"select * from Notice where n_createDate>='{Date}'")
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query)
+            result_list = [dict(row) for row in result.mappings()]
+            return result_list
+    except Exception as e:
+        print(f"Failed to execute query: {e}")
+        return []
+
+# faq 조회 쿼리 
+def get_faq_db(keyword):
+    engine = get_db_connections()
+    keywords = keyword.split()   # 사용자가 입력한 문장을 공백으로 구분하여 리스트로 변환
+
+    # utils.py에 있는 유틸리티 함수 사용
+    query_conditions = generate_query_conditions(keywords)
+    query = text(f"SELECT * FROM faq WHERE {query_conditions}")
+    
     try:
         with engine.connect() as connection:
             result = connection.execute(query)
