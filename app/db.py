@@ -10,7 +10,7 @@ load_dotenv()
 def get_db_connections():
     envhost = os.getenv('DB_HOST')
     envuser = os.getenv('DB_USER')
-    envpassword = os.getenv('DB_PASSWORD2')
+    envpassword = os.getenv('DB_PASSWORD')
     envdb = os.getenv('DB_NAME')
 
 
