@@ -62,6 +62,7 @@ def makeContents(notice):
         contents += f"제목: {title}\n내용: {content}\n\n"
     return contents
 
+
 def makeOrder(order):
     contents = ""
     for text in order:
@@ -73,8 +74,6 @@ def makeOrder(order):
         # 제목과 내용을 하나의 문자열로 이어붙임
         contents += f"상품명: {pdtname}\n 가격: {price}\n 수량 : {cnt} \n 날짜 : {date} \n"
     return contents
-
-
 
 def makeResponse(faq):
     contents = ""

@@ -10,7 +10,7 @@ load_dotenv()
 def get_db_connections():
     envhost = os.getenv('DB_HOST')
     envuser = os.getenv('DB_USER')
-    envpassword = os.getenv('DB_PASSWORD')
+    envpassword = os.getenv('DB_PASSWORD2')
     envdb = os.getenv('DB_NAME')
 
 
@@ -46,6 +46,17 @@ def get_notice_db(Date):
         print(f"Failed to execute query: {e}")
         return []
 
+def get_order_db(email):
+    engine = get_db_connections()
+    query = text("select * from order_delt where or_no = (select or_no from orders where c_email= :email  order by or_date DESC LIMIT 1)")
+    
+    if engine is None:
+        return json.dumps([])
+    try:
+        result = execute_query(query, engine, {'email':email})
+        print("db : " ,result)
+        return result
+
 # faq 조회 쿼리 
 def get_faq_db(keyword):
     engine = get_db_connections()
@@ -58,26 +69,8 @@ def get_faq_db(keyword):
     try:
         with engine.connect() as connection:
             result = connection.execute(query)
-            print("db - result:",result)
-            print("db - result:",result)
             result_list = [dict(row) for row in result.mappings()]
-            print("db - result_list: ",result_list)
-            print("db - result_list: ",result_list)
             return result_list
-    except Exception as e:
-        print(f"Failed to execute query: {e}")
-        return []
-
-def get_order_db(email):
-    engine = get_db_connections()
-    query = text("select * from order_delt where or_no = (select or_no from orders where c_email= :email  order by or_date DESC LIMIT 1)")
-    
-    if engine is None:
-        return json.dumps([])
-    try:
-        result = execute_query(query, engine, {'email':email})
-        print("db : " ,result)
-        return result
     except Exception as e:
         print(f"Failed to execute query: {e}")
         return []
