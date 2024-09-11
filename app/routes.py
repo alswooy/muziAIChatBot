@@ -1,33 +1,19 @@
 # API 파일
-from datetime import date , timedelta 
-from flask import Blueprint, request, render_template, jsonify, redirect, url_for
+from flask import Blueprint, request
 from flask_cors import CORS
 from app.db import get_order_db, get_notice_db, get_faq_db, get_orderNo
 from app.utils import dayfillter, makeContents, makeResponse, makeOrder
+from app.service import redisUserID
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
 from app.utils import (
-    make_prompt, 
-    extract_purchase_id,
-    extract_customer_name_email
+    make_prompt,
+    basicAnswer
 )
-import redis
 import json
-import base64
+import re
 load_dotenv()
-
-
-passwenv = os.getenv('REDIS_PASSWORD')
-hostenv = os.getenv('REDIS_HOST')
-portenv = os.getenv('REDIS_PORT')
-redis_client = redis.StrictRedis(
-    host=hostenv,  # Redis 서버 IP
-    port=portenv,             # Redis 서버 포트
-    db=0,                  # Redis DB 인덱스
-    password=passwenv,  # Redis 서버 비밀번호
-    decode_responses=True   # 응답을 문자열로 디코딩
-)
 
 main_bp = Blueprint('main', __name__)
 CORS(main_bp, supports_credentials=True)
@@ -46,14 +32,7 @@ def test():
 def index():
     bot_response = ""
     if request.method == 'POST':
-        data=request.get_json()
-        req=data.get('contents')
-        prompt=[
-            {"role": "system", "content": "너는 무지 사이트  ai야"},
-            {"role": "user", "content": f"{req}"}
-        ]
-        res=make_prompt(prompt)
-        return res
+        return basicAnswer(request)
 
 @main_bp.route('/notice', methods=['POST'])
 def notice():
@@ -99,37 +78,21 @@ def faq():
     
 @main_bp.route('/order', methods=['POST','GET'])
 def order():
-    userID=""
-    # Spring 서버의 /redis 엔드포인트에 GET 요청
-    response = request.cookies.get('SESSION') #쿠키값 가지고오기
-    if response is None:
-        return jsonify({"error": "SESSION 쿠키가 없습니다."}), 400
-    session_id = base64.b64decode(response).decode('utf-8') #
-    redis_key = f"spring:session:sessions:{session_id}"
-        # 해당 키의 모든 필드와 값을 가져옴 (Redis 해시 사용)
-    session_data = redis_client.hgetall(redis_key)
-    email_value = session_data.get("sessionAttr:c_email")
-    
-    if not email_value:
-        userID = ""
-    else:
-        userID = email_value.replace('"', '')
+    userID = redisUserID(request) # service단에 redis 회원정보 구현
 
     data=request.get_json()
     user_input=data.get('contents')
 
     if request.method == 'POST':
         # 데이터가 전달되었는지 확인
-        user_input = user_input.split()
-        for keyword in user_input :
-            if keyword == '주문':
-                user_input = '주문'
+        match = re.search(r'주문', user_input)
+        if match:
+            match = match.group()
+        else:
+            match = ''
         data = request.get_json()
-
-        if not data or 'contents' not in data:
-            return "잘못된 요청입니다.", 400
         
-        if user_input == '주문':
+        if match == '주문':
             if not userID:
                 login_url = "http://localhost:8080/login"
                 prompt = [
@@ -151,7 +114,6 @@ def order():
                 no_list = json.loads(no)  # 문자열을 리스트로 변환
                 order_no_value = no_list[0]["or_no"]
                 
-                
                 # 응답 생성
                 prompt = [
                     {"role": "system", "content": f"회원의 주문내역을 알려주는 AI입니다. 주문내역을 출력해줍니다. 회원이 링크를 들어갈수 있게 뿌려줍니다.<a href = http://localhost:8080/orders/orderDetailList?orderNo={order_no_value}>[주문내역이동]</a>"},
@@ -160,14 +122,8 @@ def order():
                 res = make_prompt(prompt)
                 return res
         else:
-            data=request.get_json()
-            req=data.get('contents')
-            prompt=[
-                {"role": "system", "content": "너는 무지 사이트  ai야"},
-                {"role": "user", "content": f"{req}"}
-            ]
-            res=make_prompt(prompt)
-            return res
+            return basicAnswer(request)
+        
 @main_bp.route('/product', methods=['POST','GET'])
 def product():
 
