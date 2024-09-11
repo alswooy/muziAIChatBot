@@ -67,12 +67,12 @@ def makeOrder(order):
     contents = ""
     for text in order:
         pdtname = text['od_pdtname']
-        price = text['od_price']
-        date = text['od_date']
-        cnt = text['od_cnt']
+        price = text['or_total']
+        date = text['or_date']
+        no = text['or_no']
         print("상품명 : ", pdtname, " 가격: ", price)
         # 제목과 내용을 하나의 문자열로 이어붙임
-        contents += f"상품명: {pdtname}\n 가격: {price}\n 수량 : {cnt} \n 날짜 : {date} \n"
+        contents += f"주문번호 : {no} <br> 상품명: {pdtname}<br> 가격: {price} <br> 날짜 : {date} <br>"
     return contents
 
 def makeResponse(faq):
