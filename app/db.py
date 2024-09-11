@@ -53,7 +53,7 @@ def get_faq_db(keyword):
 
     # utils.py에 있는 SELECT * FROM faq WHERE유틸리티 함수 사용
     query_conditions = generate_query_conditions(keywords)
-    query = text(f" {query_conditions}")
+    query = text(f"SELECT * FROM faq WHERE {query_conditions}")
     
     try:
         with engine.connect() as connection:
