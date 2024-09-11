@@ -19,25 +19,6 @@ def make_prompt(conversation):
     )
     return res.choices[0].message.content
 
-def extract_customer_name_email(input_text):
-    name_pattern = r"이름:\s*([가-힣]{2,4})"
-    email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-
-    name_match = re.search(name_pattern, input_text)
-    email_match = re.search(email_pattern, input_text)
-
-    name = name_match.group(1) if name_match else None
-    email = email_match.group(0) if email_match else None
-
-    print('유저정보', name, email)
-
-    return name, email
-
-def extract_purchase_id(input_text):
-    id_pattern = r"주문\s*ID\s*:\s*(\d+)"
-    match = re.search(id_pattern, input_text)
-    return int(match.group(1)) if match else None
-
 def dayfillter(input_text):
     if "삼일" in input_text:
         return (date.today()-timedelta(3)).strftime('%Y-%m-%d')
@@ -67,12 +48,11 @@ def makeOrder(order):
     contents = ""
     for text in order:
         pdtname = text['od_pdtname']
-        price = text['od_price']
-        date = text['od_date']
-        cnt = text['od_cnt']
-        print("상품명 : ", pdtname, " 가격: ", price)
+        price = text['or_total']
+        date = text['or_date']
+        no = text['or_no']
         # 제목과 내용을 하나의 문자열로 이어붙임
-        contents += f"상품명: {pdtname}\n 가격: {price}\n 수량 : {cnt} \n 날짜 : {date} \n"
+        contents += f"주문번호 : {no} <br> 상품명: {pdtname}<br> 가격: {price} <br> 날짜 : {date} <br>"
     return contents
 
 def makeResponse(faq):
@@ -87,3 +67,21 @@ def makeResponse(faq):
 
 def generate_query_conditions(keywords):
     return " OR ".join([f"faq_title LIKE '%{keyword}%'" for keyword in keywords])
+
+def basicAnswer(request):
+    data=request.get_json()
+    req=data.get('contents')
+    prompt=[
+        {"role": "system", "content": "너는 무지 사이트  ai야"},
+        {"role": "user", "content": f"{req}"}
+    ]
+    res=make_prompt(prompt)
+    return res
+
+def matchKeyword(keyword,user_input):
+    match = re.search('주문', user_input)
+    if match:
+        match = match.group()
+    else:
+        match = ''
+    return match
