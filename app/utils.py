@@ -77,3 +77,11 @@ def basicAnswer(request):
     ]
     res=make_prompt(prompt)
     return res
+
+def matchKeyword(keyword,user_input):
+    match = re.search('주문', user_input)
+    if match:
+        match = match.group()
+    else:
+        match = ''
+    return match

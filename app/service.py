@@ -2,7 +2,8 @@ import base64
 import os 
 import redis
 import json
-
+from app.db import get_order_db, get_orderNo
+from app.utils import make_prompt, makeOrder
 passwenv = os.getenv('REDIS_PASSWORD')
 hostenv = os.getenv('REDIS_HOST')
 portenv = os.getenv('REDIS_PORT')
@@ -32,3 +33,30 @@ def redisUserID(request) :
         userID = email_value.replace('"', '')
     return userID
 
+def loginPrompt():
+    login_url = "http://localhost:8080/login"
+    prompt = [
+        {"role": "system", "content": f"로그인이 필요합니다. 로그인 후 다시 시도해 주세요. 회원이 로그인을 할 수 있게 링크를 알려줍니다. 클릭시 주문내역으로 이동합니다.-><a href = {login_url}>[로그인]</a>"},
+        {"role": "user", "content": "로그인이 필요합니다."}
+    ]
+    res = make_prompt(prompt)
+    return res
+
+def orderPrompt(userID, user_input):
+    contents = get_order_db(userID) # DB 정보를 빼오는 함수
+    if isinstance(contents, str): # 문자열이면 json형태로 변경
+        contents = json.loads(contents)
+    
+    content = makeOrder(contents) #DB 정보를 정리하는 함수
+    
+    no = get_orderNo(userID)
+    no_list = json.loads(no)  # 문자열을 리스트로 변환
+    order_no_value = no_list[0]["or_no"]
+    
+    # 응답 생성
+    prompt = [
+        {"role": "system", "content": f"회원의 주문내역을 알려주는 AI입니다. 주문내역을 출력해줍니다. 회원이 링크를 들어갈수 있게 뿌려줍니다.<a href = http://localhost:8080/orders/orderDetailList?orderNo={order_no_value}>[주문내역이동]</a>"},
+        {"role": "user", "content": f"===\n{content} \n=== {user_input} "}
+    ]
+    res = make_prompt(prompt)
+    return res
