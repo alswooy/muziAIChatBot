@@ -61,3 +61,12 @@ def makeContents(notice):
         # 제목과 내용을 하나의 문자열로 이어붙임
         contents += f"제목: {title}\n내용: {content}\n\n"
     return contents
+
+
+def getCust(cust):
+    cust = ""
+    if cust:
+        email = cust['c_email']
+        name = cust['c_name']
+        
+        cust += f"고객이름: {name}\n고객이메일: {email}\n\n"

@@ -42,14 +42,7 @@ def get_order_db(email):
     # 쿼리 실행 email이 맞는 정보만 출력
     return execute_query(query, engine, {'email': email})
 
-def get_cust_db(email):
-    engine = get_db_connections()
-    if engine is None:
-        return json.dumps([])
-    # 쿼리 작성
-    query = text("select c_email, c_name from where c_email= :email")
-    # 쿼리 실행 email이 맞는 정보만 출력
-    return execute_query(query, engine, {'email': email})
+
 
 def get_notice_db(Date):
     engine = get_db_connections()
@@ -62,3 +55,21 @@ def get_notice_db(Date):
     except Exception as e:
         print(f"Failed to execute query: {e}")
         return []
+    
+    
+def get_cust_db(email):
+    engine = get_db_connections()
+    query = text("select * from cust where c_email= :email")
+
+    
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query, {'email': email}).mappings().fetchone()
+            return result
+        
+        
+    except Exception as e:
+        print(f"Failed to execute query: {e}")
+        return []
+        
+        
