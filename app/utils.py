@@ -44,7 +44,6 @@ def makeContents(notice):
     return contents
 
 
-<<<<<<< HEAD
 def getCust(cust):
     cust = ""
     if cust:
@@ -52,7 +51,6 @@ def getCust(cust):
         name = cust['c_name']
         
         cust += f"고객이름: {name}\n고객이메일: {email}\n\n"
-=======
 def makeOrder(order):
     contents = ""
     for text in order:
@@ -94,4 +92,3 @@ def matchKeyword(keyword,user_input):
     else:
         match = ''
     return match
->>>>>>> d90ca3b4fcd563a49605d217b83d6bf8929a1b01
