@@ -84,11 +84,16 @@ def cust():
             # 작성한 쿼리문에 이메일을 통해서 DB를 조회한다
             contents = get_cust_db(email)
             
-            # DB조회가 된경우 이메일을 반환
+            # DB조회가 된경우
             if contents:
-                print(f"contents data: {contents}")
-                # 역할과 상관없이 단순 텍스트로 처리
-                return f"고객님의 정보를 확인했습니다. 이메일: {contents['c_email']}"
+                print(f"contents data: {contents.c_name}")
+                
+                prompt=[
+                {"role": "system", "content": "너는 고객정보를 알려주는 AI야 너가 알려줘야할건 이름, 이메일, 전화번호, 주소뿐이야"},
+                {"role": "user", "content": f"===\n{contents} \n=== {req}"}
+                ]
+                res=make_prompt(prompt)
+                return res
             
             # DB조회가 안될경우 메시지반환
             else:
@@ -97,6 +102,8 @@ def cust():
         except Exception as e:
             print(f"Error: {str(e)}")
             return "잘못된 입력입니다. 이름과 이메일을 다시 확인해 주세요."
-            
+    
+
+    
     return jsonify({"error": "잘못된 요청입니다."}), 400
 
