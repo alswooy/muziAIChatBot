@@ -20,7 +20,7 @@ def redisUserID(request) :
     # Spring 서버의 /redis 엔드포인트에 GET 요청
     response = request.cookies.get('SESSION') #쿠키값 가지고오기
     if response is None:
-        return json({"error": "SESSION 쿠키가 없습니다."}), 400
+        return json({"error": "SESSION 쿠키가 없습니다."})
     session_id = base64.b64decode(response).decode('utf-8') #
     redis_key = f"spring:session:sessions:{session_id}"
         # 해당 키의 모든 필드와 값을 가져옴 (Redis 해시 사용)
@@ -48,15 +48,31 @@ def orderPrompt(userID, user_input):
         contents = json.loads(contents)
     
     content = makeOrder(contents) #DB 정보를 정리하는 함수
-    
+    prompt=[]
     no = get_orderNo(userID)
     no_list = json.loads(no)  # 문자열을 리스트로 변환
-    order_no_value = no_list[0]["or_no"]
-    
+
+    try:
+        order_no_value = no_list[0]["or_no"]
+    except IndexError:
+    # no_list가 비어있을 때 처리
+        order_no_value = None
+        print("no_list is empty.")
+    except KeyError:
+    # no_list[0]에 "or_no" 키가 없을 때 처리
+        order_no_value = None
+    print("'or_no' key not found in the first element of no_list.")
+
+    if not order_no_value :
+        prompt = [
+            {"role": "system", "content": "회원의 주문내역알 알려주는 AI입니다. 주문내역이 없으니 주문을 해달라고 부탁합니다."},
+            {"role": "user", "content": f"===\n{content} \n=== {user_input} "}
+        ]
+    else:
     # 응답 생성
-    prompt = [
-        {"role": "system", "content": f"회원의 주문내역을 알려주는 AI입니다. 주문내역을 출력해줍니다. 회원이 링크를 들어갈수 있게 뿌려줍니다.<a href = http://localhost:8080/orders/orderDetailList?orderNo={order_no_value}>[주문내역이동]</a>"},
-        {"role": "user", "content": f"===\n{content} \n=== {user_input} "}
-    ]
+        prompt = [
+            {"role": "system", "content": f"회원의 주문내역을 알려주는 AI입니다. 주문내역을 출력해줍니다. 회원이 링크를 들어갈수 있게 뿌려줍니다.<a href = http://localhost:8080/orders/orderDetailList?orderNo={order_no_value}>[주문내역이동]</a>"},
+            {"role": "user", "content": f"===\n{content} \n=== {user_input} "}
+        ]
     res = make_prompt(prompt)
     return res

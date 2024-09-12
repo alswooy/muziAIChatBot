@@ -86,8 +86,9 @@ def order():
     user_input=data.get('contents')
 
     if request.method == 'POST':
-        match = matchKeyword('주문',user_input)
-        if match == '주문':
+        order = '주문'
+        match = matchKeyword(order,user_input)
+        if match == order:
             if not userID:
                 return loginPrompt()
             else :
@@ -95,6 +96,7 @@ def order():
                 return orderPrompt(userID, user_input)
         else:
             return basicAnswer(request)
+
         
 @main_bp.route('/product', methods=['POST','GET'])
 def product():
