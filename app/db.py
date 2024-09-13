@@ -123,7 +123,33 @@ def get_orderNo(email):
         return []
     
 
-def get_product_db():
+def get_product_db(query):
+    if "from product" not in query.lower():
+        return query
+    engine = get_db_connections()
+    query_text = text(query)
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query_text)
+            result_list = [dict(row) for row in result.mappings()]
+            print(result_list)
+            return result_list
+    except Exception as e:
+        print(f"Failed to execute query--get_product_db: {e}")
+        return []
+    
 
-    return []
+def get_image(fileId):
+    engine = get_db_connections()
+    query = text("SELECT file_data FROM file_table WHERE id = :fileId")  # 바인딩 변수 사용
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(query, {"fileId": fileId})  # 키워드 대신 바인딩 변수 사용
+            image_data = result.fetchone()  # 한 개의 행을 가져옴
+            if image_data:
+                return image_data[0]  # file_data 컬럼만 리턴
+            return None
+    except Exception as e:
+        print(f"Failed to execute query --- get_image: {e}")
+        return None
 

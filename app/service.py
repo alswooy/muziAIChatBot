@@ -16,6 +16,10 @@ redis_client = redis.StrictRedis(
 )
 
 def redisUserID(request) : 
+
+    print(passwenv)
+    print(hostenv)
+    print(portenv)
     userID=""
     # Spring 서버의 /redis 엔드포인트에 GET 요청
     response = request.cookies.get('SESSION') #쿠키값 가지고오기
