@@ -11,15 +11,12 @@
     공민경(FAQ), 김규영(제품), 김다니(회원), 유민우(주문, 장바구니), 황정하(공지사항)
 
 - 발표자료 : https://docs.google.com/presentation/d/1VI_fJPmd7AFWO_MbFEuOwVd8FJosH_NQ6tZS4KKEQAU/edit?usp=sharing
+- 시연영상 : https://youtu.be/Q6I5Xz4rCIw
 
  - 회원
 
 
  - 제품
-
-
-- 장바구니 
-
 
 
 - 주문
